@@ -1,4 +1,8 @@
 using System.Collections.Generic;
+public class GitHubIssuesResponse
+{
+    public IList<GithubIssue> Issues { get; set; }
+}
 public class GithubIssue
 {
     public string Url { get; set; }
