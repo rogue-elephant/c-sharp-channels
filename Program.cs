@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,27 +11,30 @@ namespace c_sharp_channels
         static async Task Main(string[] args)
         {
             var cancellationToken = new CancellationToken();
-            await foreach (var repoIssues in GitHubIssues
-            .GetIssues(GetMyRepos
-                (
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            var getGithubIssuesAsync = GitHubIssues.GetIssues(
+                GetMyRepos(
                     "migraine-tracker",
                     "json-conversion-tool",
                     // "json-csv-tool",
                     "json-schema-to-markdown-tool"
-                ), cancellationToken)
-            .ReadAllAsync())
-                foreach (var issue in repoIssues)
-                    Console
-                        .WriteLine(
-                            $@"
-                            ---------------------------------------------
-                            REPO: {issue.Repository_Url}
-                            From User: {issue.User.Login} (Is Site Admin: {issue.User.Site_Admin})
-                            Issue:
-                            {issue.Title}
-                            
-                            {issue.Body}"
-                        );
+                )
+            );
+
+            await foreach (var issue in getGithubIssuesAsync.WithCancellation(cancellationToken))
+                Console.WriteLine(
+                    $@"
+                    ---------------------------------------------
+                    REPO: {issue.Repository_Url}
+                    From User: {issue.User.Login} (Is Site Admin: {issue.User.Site_Admin})
+                    Issue:
+                    {issue.Title}
+                    
+                    {issue.Body}"
+                );
+            stopwatch.Stop();
+            Console.WriteLine($"Acquisition Took {stopwatch.ElapsedMilliseconds}ms");
         }
 
         static IEnumerable<GithubIssuesRequest> GetMyRepos(params string[] repoNames)

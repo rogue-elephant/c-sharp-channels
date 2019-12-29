@@ -11,6 +11,9 @@
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
+            "presentation": {
+				"reveal": "always"
+			},
             "problemMatcher": "$msCompile"
         },
         {
