@@ -13,8 +13,7 @@ internal static class GitHubIssues
         $"https://api.github.com/repos/{request.Username}/{request.RepoName}/issues?state=open";
     internal static async IAsyncEnumerable<GithubIssue> GetIssues(IEnumerable<GithubIssuesRequest> requests, [EnumeratorCancellation]CancellationToken cancellationToken = default)
     {
-        var asyncWebClient = new AsyncWebClient();
-        var httpRequests = requests.Select(async request => await asyncWebClient.Get<GithubIssue[]>(BuildUrl(request), cancellationToken));
+        var httpRequests = requests.Select(async request => await (new AsyncWebClient()).Get<GithubIssue[]>(BuildUrl(request), cancellationToken));
 
         // Fires all tasks, no requirement for parallel firing, since the thread overhead outweights the sequential http triggering
         var httpRequestsRunning = httpRequests.ToList();
